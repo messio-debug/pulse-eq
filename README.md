@@ -17,9 +17,10 @@ makepkg -si
 
 Launch **Pulse EQ** from your app menu, choose a preset or move the ten bands,
 then click **Apply to PipeWire**. PipeWire restarts briefly to load the filter.
-After that, select **Pulse EQ** as your audio output in your desktop's sound
-settings. Applications can then use the equalized virtual output. Select your
-normal output again to bypass the equalizer.
+After that, the app selects **Pulse EQ** as the default output and routes the
+processed audio to the hardware output that was active before the restart.
+The equalizer also adds automatic preamp headroom to prevent boosted bands
+from clipping. Choose your normal output in sound settings to bypass the EQ.
 
 You can also make it the default output from a terminal. First click **Apply
 to PipeWire** in the app, then run:

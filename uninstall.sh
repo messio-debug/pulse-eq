@@ -3,10 +3,15 @@ set -euo pipefail
 
 config_home="${XDG_CONFIG_HOME:-${HOME}/.config}"
 filter_config="${config_home}/pipewire/pipewire.conf.d/90-pulse-eq.conf"
+eq_filters="${config_home}/pulse-eq/filters.txt"
 
 if [[ -f "$filter_config" ]]; then
   rm -- "$filter_config"
   echo "Removed PipeWire equalizer configuration."
+fi
+
+if [[ -f "$eq_filters" ]]; then
+  rm -- "$eq_filters"
 fi
 
 if command -v systemctl >/dev/null 2>&1 && systemctl --user is-active --quiet pipewire.service; then
