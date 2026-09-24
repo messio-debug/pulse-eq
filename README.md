@@ -29,7 +29,9 @@ pulse-eq-output
 ```
 
 This finds the current PipeWire node ID automatically and selects Pulse EQ.
-To switch back, choose your normal speakers or headphones in sound settings.
+If you are running from a source checkout instead of the package, run
+`bash select-output.sh`. To switch back, choose your normal speakers or
+headphones in sound settings.
 
 The generated PipeWire fragment lives at
 `~/.config/pipewire/pipewire.conf.d/90-pulse-eq.conf`. Remove that file and
@@ -51,9 +53,10 @@ The uninstaller keeps your saved presets. To remove those too, delete
 python3 pulse-eq.py
 ```
 
-To **unistall** the program plaese run the following :
-
 Requires GTK 4, libadwaita, PyGObject, PipeWire, WirePlumber, and a systemd user
 session. PipeWire changes are only written when **Apply** is clicked.
 
-***Will be releasing newer functions e.g. customizations , GUI changer , more auto equalizer options and save equalizer options into catalog***
+## Planned features
+
+More equalizer profiles, customization options, and additional AutoEQ choices
+are planned.
