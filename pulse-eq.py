@@ -174,7 +174,7 @@ class PulseEQ(Adw.Application):
         body.append(presets)
         preset_head = Gtk.Box()
         preset_head.append(Gtk.Label(label="QUICK START", xalign=0, hexpand=True, css_classes=["band-label"]))
-        self.preset_hint = Gtk.Label(label="Flat", css_classes=["hint"])
+        self.preset_hint = Gtk.Label(label=self.preset_name, css_classes=["hint"])
         preset_head.append(self.preset_hint); presets.append(preset_head)
         pills = Gtk.Box(spacing=8)
         presets.append(pills)

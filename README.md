@@ -6,9 +6,11 @@ built-in parametric EQ, has no audio plugin dependency, and saves its state in
 
 ## Install on Arch
 
-Install the runtime dependencies and build the package:
+Clone the repository, install the runtime dependencies, and build the package:
 
 ```sh
+git clone https://github.com/messio-debug/pulse-eq.git
+cd pulse-eq
 sudo pacman -S python-gobject python-cairo gtk4 libadwaita pipewire wireplumber
 makepkg -si
 ```
