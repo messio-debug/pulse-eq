@@ -26,6 +26,15 @@ The generated PipeWire fragment lives at
 restart PipeWire to uninstall the filter. Presets and band values are stored
 in `~/.config/pulse-eq/state.json`.
 
+To remove Pulse EQ and disable its PipeWire filter, run:
+
+```sh
+bash /usr/share/pulse-eq/uninstall.sh
+```
+
+The uninstaller keeps your saved presets. To remove those too, delete
+`~/.config/pulse-eq/` after uninstalling.
+
 ## Run from source
 
 ```sh
