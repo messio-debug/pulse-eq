@@ -27,7 +27,8 @@ PIPEWIRE_FILE = Path(GLib.get_user_config_dir()) / "pipewire" / "pipewire.conf.d
 
 PRESETS = {
     "Flat": [0] * 10,
-    "Bass boost": [5, 4, 3, 1, 0, 0, 0, 0, 0, 0],
+    # Skip the largely inaudible 31 Hz lift and put the emphasis in audible bass.
+    "Bass boost": [0, 5, 4, 2, 0, 0, 0, 0, 0, 0],
     "Vocal": [-2, -1, 0, 1, 3, 3, 2, 1, 0, 0],
     "Treble": [0, 0, 0, 0, 0, 0, 1, 2, 4, 5],
     "Warm": [3, 2, 1, 0, -1, 0, 1, 1, 0, -1],
@@ -51,6 +52,7 @@ scale highlight { background: #bdff69; border-radius: 99px; }
 scale slider { background: #d5ff9c; border: 2px solid #101112; min-width: 15px; min-height: 15px; }
 button.preset { background: #202321; border: 1px solid #2c302d; border-radius: 10px; color: #c5c9c2; padding: 8px 13px; }
 button.preset:checked { background: #293420; border-color: #718d4c; color: #d9ffad; }
+button.preset, button.apply, button.flat { transition: background 160ms ease, color 160ms ease, border-color 160ms ease; }
 button.apply { background: #c7ff78; color: #1b2112; border-radius: 11px; font-weight: 700; padding: 11px 18px; }
 button.apply:hover { background: #d7ff9e; }
 button.flat { color: #aeb2ac; }
@@ -100,7 +102,9 @@ def eq_peak_db(values):
 
 def eq_file(values):
     peak = eq_peak_db(values)
-    headroom_db = max(0.0, peak) + (1.0 if peak > 0.1 else 0.0)
+    # The sweep already estimates the combined peak; avoid an extra arbitrary
+    # dB of attenuation beyond the calculated clipping headroom.
+    headroom_db = max(0.0, peak)
     preamp_db = 0.0 if headroom_db < 0.05 else -headroom_db
     lines = [f"Preamp: {preamp_db:.1f} dB"]
     lines.extend(
@@ -168,6 +172,7 @@ class PulseEQ(Adw.Application):
         super().__init__(application_id=APP_ID, flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
         self.values, self.preset_name, self.hardware_sink = load_state()
         self.sliders = []
+        self.preset_animation = None
         self.connect("activate", self.activate)
 
     def activate(self, *_):
@@ -258,14 +263,39 @@ class PulseEQ(Adw.Application):
     def changed(self, slider, idx):
         self.values[idx] = slider.get_value()
         self.value_labels[idx].set_text(f"{self.values[idx]:+.1f}")
-        self.preset_name = "Custom"; self.preset_hint.set_text("Custom")
-        self.update_preset_button(); self.curve.queue_draw(); self.refresh_headroom(); self.save_state()
+        if not self.preset_animation:
+            self.preset_name = "Custom"; self.preset_hint.set_text("Custom")
+            self.update_preset_button(); self.save_state()
+        self.curve.queue_draw(); self.refresh_headroom()
 
     def choose_preset(self, button, name):
         if button.get_active():
+            self.animate_preset(name)
+
+    def animate_preset(self, name):
+        if self.preset_animation:
+            GLib.source_remove(self.preset_animation)
+        starts = [slider.get_value() for slider in self.sliders]
+        targets = PRESETS[name]
+        started = time.monotonic()
+        duration = 0.24
+        self.preset_animation = True
+
+        def step():
+            progress = min(1.0, (time.monotonic() - started) / duration)
+            eased = 1.0 - (1.0 - progress) ** 3
+            for slider, start, target in zip(self.sliders, starts, targets):
+                slider.set_value(start + (target - start) * eased)
+            if progress < 1.0:
+                return GLib.SOURCE_CONTINUE
+            self.preset_animation = None
             self.preset_name = name
-            for i, value in enumerate(PRESETS[name]): self.sliders[i].set_value(value)
-            self.preset_hint.set_text(name); self.update_preset_button(); self.refresh_headroom(); self.save_state()
+            self.preset_hint.set_text(name)
+            self.update_preset_button()
+            self.save_state()
+            return GLib.SOURCE_REMOVE
+
+        self.preset_animation = GLib.timeout_add(16, step)
 
     def update_preset_button(self):
         if not hasattr(self, "preset_buttons"): return
