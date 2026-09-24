@@ -43,9 +43,7 @@ python3 pulse-eq.py
 
 To **unistall** the program plaese run the following :
 
-``` bash 
-/usr/share/pulse-eq/uninstall.sh
-```
-
 Requires GTK 4, libadwaita, PyGObject, PipeWire, WirePlumber, and a systemd user
 session. PipeWire changes are only written when **Apply** is clicked.
+
+(Will be releasing newer functions e.g. customizations , GUI change and e.t.c )
