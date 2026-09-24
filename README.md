@@ -21,6 +21,16 @@ After that, select **Pulse EQ** as your audio output in your desktop's sound
 settings. Applications can then use the equalized virtual output. Select your
 normal output again to bypass the equalizer.
 
+You can also make it the default output from a terminal. First click **Apply
+to PipeWire** in the app, then run:
+
+```sh
+pulse-eq-output
+```
+
+This finds the current PipeWire node ID automatically and selects Pulse EQ.
+To switch back, choose your normal speakers or headphones in sound settings.
+
 The generated PipeWire fragment lives at
 `~/.config/pipewire/pipewire.conf.d/90-pulse-eq.conf`. Remove that file and
 restart PipeWire to uninstall the filter. Presets and band values are stored
